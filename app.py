@@ -2,14 +2,17 @@ import time
 import json
 import queue
 import shutil
+import logging
 import threading
 import streamlit as st
+import streamlit.components.v1 as components
 from pathlib import Path
 from transcoder import transcode_clip, extract_thumbnail, detect_is_log
 from uploader import get_credentials, get_or_create_album, list_app_albums, upload_video_file
 
 BASE_DIR = Path(__file__).resolve().parent
 STATUS_FILE = BASE_DIR / "batch_status.json"
+LOG_FILE = BASE_DIR / "pipeline.log"
 CSS_FILE = BASE_DIR / "style.css"
 LUT_FILE = "GoPro_GP-Log_to_Rec709.cube"
 
@@ -18,14 +21,25 @@ OUTPUT_DIR = Path(r"C:\Users\Admin\Videos\GoPro\output")
 PROCESSED_DIR = Path(r"C:\Users\Admin\Videos\GoPro\processed")
 CACHE_DIR = BASE_DIR / ".cache"
 
-st.set_page_config(page_title="GoPro Video Processor", layout="wide")
+st.set_page_config(page_title="GoPro Video Processor v2.0", layout="wide")
 
-# Externe styling inladen
 if CSS_FILE.exists():
     with open(CSS_FILE, "r", encoding="utf-8") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# --- STATUS BEHEER VOOR ACHTERGRONDTAKEN ---
+# Heartbeat script voorkomt dat de browser de WebSocket bevriest bij inactiviteit
+components.html(
+    """
+    <script>
+    setInterval(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 15000);
+    </script>
+    """,
+    height=0,
+    width=0
+)
+
 def get_batch_status():
     if STATUS_FILE.exists():
         try:
@@ -49,9 +63,15 @@ def run_batch_worker(job_items, enable_upload, album_id, target_album_name, move
     start_time = time.time()
     
     upload_q = queue.Queue()
-    upload_status_msg = {"text": "Wachten op eerste render..."}
+    upload_state = {
+        "clip": "Wachten op eerste render...",
+        "bytes_done": 0,
+        "bytes_total": 0,
+        "percent": 0.0,
+        "queue_count": 0
+    }
 
-    # Parallelle uploader thread
+    # Parallelle Uploader Worker Thread
     def uploader_worker():
         while True:
             task = upload_q.get()
@@ -59,11 +79,23 @@ def run_batch_worker(job_items, enable_upload, album_id, target_album_name, move
                 break
             
             src_clip, rendered_file, task_idx = task
+            upload_state["clip"] = rendered_file.name
+            upload_state["queue_count"] = upload_q.qsize()
+
+            def on_upload_progress(done, total_b):
+                upload_state["bytes_done"] = done
+                upload_state["bytes_total"] = total_b
+                upload_state["percent"] = (done / max(1, total_b)) * 100.0
+                st_data = get_batch_status() or {}
+                st_data["upload_clip"] = rendered_file.name
+                st_data["upload_pct"] = upload_state["percent"]
+                st_data["upload_mb"] = f"{done / (1024*1024):.1f} / {total_b / (1024*1024):.1f} MB"
+                st_data["upload_queue"] = upload_q.qsize()
+                set_batch_status(st_data)
+
+            upload_ok = True
             if enable_upload and album_id:
-                upload_status_msg["text"] = f"Uploaden: {rendered_file.name}"
-                upload_ok = upload_video_file(creds, rendered_file, album_id)
-            else:
-                upload_ok = True
+                upload_ok = upload_video_file(creds, rendered_file, album_id, progress_callback=on_upload_progress)
 
             if upload_ok and move_to_processed:
                 target_dest = processed_dir / src_clip.name
@@ -83,11 +115,16 @@ def run_batch_worker(job_items, enable_upload, album_id, target_album_name, move
         "current_index": 0,
         "total": total,
         "current_clip": "Initialiseren...",
-        "status": "Bezig met starten",
-        "upload_status": "Klaarzetten",
+        "status": "Bezig",
+        "clip_percent": 0.0,
+        "upload_clip": "Wachten...",
+        "upload_pct": 0.0,
+        "upload_mb": "- / - MB",
+        "upload_queue": 0,
         "eta": "Berekenen..."
     })
 
+    # GPU Worker Loop (Rendert autonoom op maximale CUDA-snelheid)
     for idx, item in enumerate(active_jobs):
         state = get_batch_status() or {}
         if state.get("stop_requested", False):
@@ -95,9 +132,7 @@ def run_batch_worker(job_items, enable_upload, album_id, target_album_name, move
 
         while True:
             state = get_batch_status() or {}
-            if state.get("stop_requested", False):
-                break
-            if not state.get("paused", False):
+            if state.get("stop_requested", False) or not state.get("paused", False):
                 break
             time.sleep(1)
 
@@ -118,18 +153,19 @@ def run_batch_worker(job_items, enable_upload, album_id, target_album_name, move
             eta_str = "Berekenen..."
 
         def on_clip_progress(pct):
-            set_batch_status({
+            st_data = get_batch_status() or {}
+            st_data.update({
                 "running": True,
                 "current_index": idx + 1,
                 "total": total,
                 "current_clip": clip_path.name,
                 "status": f"Renderen ({pct:.0f}%)",
-                "upload_status": upload_status_msg["text"],
                 "clip_percent": pct,
                 "eta": eta_str
             })
+            set_batch_status(st_data)
 
-        # Resume-controle: Bestaat de 1080p render al en is deze > 0 bytes?
+        # Resume check: als clip al gerenderd is in output, direct door naar upload
         if out_file.exists() and out_file.stat().st_size > 1024:
             on_clip_progress(100.0)
             upload_q.put((clip_path, out_file, idx))
@@ -141,8 +177,7 @@ def run_batch_worker(job_items, enable_upload, album_id, target_album_name, move
         if success:
             upload_q.put((clip_path, out_file, idx))
 
-    # Wacht tot alle resterende uploads klaar zijn
-    upload_status_msg["text"] = "Laatste uploads afronden..."
+    # Afronding
     upload_q.join()
     upload_q.put(None)
     uploader_thread.join()
@@ -153,93 +188,60 @@ def run_batch_worker(job_items, enable_upload, album_id, target_album_name, move
         "total": total,
         "current_clip": "Klaar",
         "status": "Voltooid",
-        "upload_status": "Alles geüpload",
+        "upload_clip": "Alles voltooid",
+        "upload_pct": 100.0,
+        "upload_mb": "Gereed",
+        "upload_queue": 0,
         "eta": "00:00:00"
     })
 
-# --- UI OPBOUW ---
-st.title("GoPro Video Batch Processor & Uploader")
-st.markdown("Verwerk GoPro clips naar **1080p Rec.709 (25fps)** en upload optioneel direct naar Google Photos.")
-
-# Sidebar
-st.sidebar.header("Instellingen")
-enable_upload = st.sidebar.checkbox("Automatisch uploaden naar Google Photos", value=True, key="cfg_upload")
-
-selected_album_id = None
-target_album_name = "GoPro Exports"
-
-if enable_upload:
-    st.sidebar.subheader("Doelalbum Selectie")
-    creds_sidebar = get_credentials()
-    existing_albums = list_app_albums(creds_sidebar)
-
-    if existing_albums:
-        album_choice = st.sidebar.radio(
-            "Album bestemming:",
-            options=["Bestaand album kiezen", "Nieuw album aanmaken"],
-            key="cfg_album_mode"
-        )
-        if album_choice == "Bestaand album kiezen":
-            chosen_title = st.sidebar.selectbox("Kies een album:", options=list(existing_albums.keys()), key="cfg_album_select")
-            selected_album_id = existing_albums[chosen_title]
-            target_album_name = chosen_title
-        else:
-            target_album_name = st.sidebar.text_input("Naam voor nieuw album:", value="GoPro Exports", key="cfg_album_new")
-    else:
-        st.sidebar.info("Nog geen albums geregistreerd. Geef hieronder een naam op:")
-        target_album_name = st.sidebar.text_input("Naam voor nieuw album:", value="GoPro Exports", key="cfg_album_new_empty")
-
-move_to_processed = st.sidebar.checkbox("Verplaats bronbestand naar 'processed' na succes", value=True, key="cfg_move")
-st.sidebar.divider()
-
-# Achtergrondtaak statusweergave & Startknop
+# --- STATUS VERIFICATIE VÓÓR HET RENDERN VAN DE PAGINA ---
 batch_state = get_batch_status()
 is_active = batch_state and batch_state.get("running", False)
 
+# ZIJBALK
+st.sidebar.header("GoPro Pipeline v2.0")
+
 if is_active:
     is_paused = batch_state.get("paused", False)
-    
     if is_paused:
-        st.sidebar.warning("⏸️ **Batch is gepauzeerd**")
+        st.sidebar.warning("⏸️ **Pipeline gepauzeerd**")
     else:
-        st.sidebar.info("⏳ **Batch draait op de achtergrond!**")
+        st.sidebar.info("🚀 **Pipeline actief**")
 
     curr_idx = batch_state.get("current_index", 0)
     total_items = max(1, batch_state.get("total", 1))
     clip_pct = batch_state.get("clip_percent", 0.0) / 100.0
 
-# 1. Totale voortgang
     st.sidebar.markdown(f"📊 **Totale batch:** {curr_idx} / {total_items}")
     st.sidebar.progress(min(1.0, curr_idx / total_items))
     st.sidebar.caption(f"⏱️ **Resterende tijd (ETA):** `{batch_state.get('eta', 'Berekenen...')}`")
     st.sidebar.divider()
 
-    # 2. GPU Render Monitor
-    st.sidebar.markdown("🎮 **GPU Render Engine (NVENC)**")
-    gpu_clip = batch_state.get('current_clip', '-')
-    st.sidebar.caption(f"Actief: `{gpu_clip}`")
+    st.sidebar.markdown("🎮 **GPU NVENC Engine**")
+    st.sidebar.caption(f"Actief: `{batch_state.get('current_clip', '-')}`")
     st.sidebar.progress(min(1.0, max(0.0, clip_pct)))
     st.sidebar.caption(f"Status: {batch_state.get('status', '-')}")
     st.sidebar.divider()
 
-    # 3. Cloud Upload Monitor
     st.sidebar.markdown("☁️ **Google Photos Uploader**")
-    upload_msg = batch_state.get('upload_status', 'Wachten op eerste render...')
-    st.sidebar.info(f"{upload_msg}")
+    st.sidebar.caption(f"Bestand: `{batch_state.get('upload_clip', '-')}`")
+    up_pct = batch_state.get("upload_pct", 0.0) / 100.0
+    st.sidebar.progress(min(1.0, max(0.0, up_pct)))
+    st.sidebar.caption(f"Transfer: **{batch_state.get('upload_mb', '-')}** ({batch_state.get('upload_pct', 0.0):.0f}%)")
+    st.sidebar.caption(f"Wachtrij: **{batch_state.get('upload_queue', 0)} clips**")
     st.sidebar.divider()
-    # Knoppen voor bediening
+
     col_p, col_s = st.sidebar.columns(2)
     with col_p:
         if is_paused:
             if st.button("▶️ Hervatten", use_container_width=True):
                 batch_state["paused"] = False
-                batch_state["status"] = "Hervatting..."
                 set_batch_status(batch_state)
                 st.rerun()
         else:
             if st.button("⏸️ Pauzeren", use_container_width=True):
                 batch_state["paused"] = True
-                batch_state["status"] = "Gepauzeerd"
                 set_batch_status(batch_state)
                 st.rerun()
 
@@ -247,82 +249,131 @@ if is_active:
         if st.button("⏹️ Stoppen", use_container_width=True):
             batch_state["stop_requested"] = True
             batch_state["running"] = False
-            batch_state["status"] = "Geannuleerd"
             set_batch_status(batch_state)
-            # Sluit eventueel actief FFmpeg proces direct af
             import subprocess
             subprocess.run(["taskkill", "/F", "/IM", "ffmpeg.exe"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             st.rerun()
 
-    # Auto-refresh alleen actief laten lopen als niet gepauzeerd
-    if not is_paused:
-        time.sleep(4)
-        st.rerun()
 else:
+    enable_upload = st.sidebar.checkbox("Automatisch uploaden", value=True, key="cfg_upload")
+    selected_album_id = None
+    target_album_name = "GoPro Exports"
+
+    if enable_upload:
+        creds_sidebar = get_credentials()
+        existing_albums = list_app_albums(creds_sidebar)
+        if existing_albums:
+            album_choice = st.sidebar.radio("Album:", options=["Bestaand album", "Nieuw album"], key="cfg_album_mode")
+            if album_choice == "Bestaand album":
+                chosen_title = st.sidebar.selectbox("Kies album:", options=list(existing_albums.keys()), key="cfg_album_select")
+                selected_album_id = existing_albums[chosen_title]
+                target_album_name = chosen_title
+            else:
+                target_album_name = st.sidebar.text_input("Nieuwe albumnaam:", value="GoPro Exports", key="cfg_album_new")
+        else:
+            target_album_name = st.sidebar.text_input("Nieuwe albumnaam:", value="GoPro Exports", key="cfg_album_new_empty")
+
+    move_to_processed = st.sidebar.checkbox("Verplaats originelen naar 'processed'", value=True, key="cfg_move")
+    st.sidebar.divider()
     start_batch = st.sidebar.button("🚀 Start Batch Verwerking", type="primary", use_container_width=True)
 
-if not INPUT_DIR.exists():
-    st.error(f"Input map niet gevonden: {INPUT_DIR}")
-    st.stop()
-
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-# Haal unieke MP4's op
-video_files = sorted(list({p.resolve(): p for p in INPUT_DIR.iterdir() if p.suffix.lower() == ".mp4"}.values()))
-
-if not video_files:
-    st.info(f"Geen MP4-bestanden gevonden in `{INPUT_DIR}`. Alles is verwerkt of verplaatst!")
-    st.stop()
-
-choices = {}
-st.subheader(f"Gevonden clips ({len(video_files)})")
-
-for idx, clip in enumerate(video_files):
-    col1, col2 = st.columns([1, 2])
-    
-    with col1:
-        thumb_file = CACHE_DIR / f"{clip.stem}_thumb.jpg"
-        if extract_thumbnail(clip, thumb_file) and thumb_file.is_file():
-            st.image(str(thumb_file), use_container_width=True)
-        else:
-            st.caption("🎬 Geen preview beschikbaar")
-        
-        st.write(f"**{clip.name}**")
-        size_mb = clip.stat().st_size / (1024 * 1024)
-        st.caption(f"Grootte: {size_mb:.1f} MB")
-        
-    with col2:
-        options = ["GP-Log (LUT + 1080p 25fps)", "Standaard Rec.709 (Alleen 1080p 25fps)", "Overslaan"]
-        
-        is_log = detect_is_log(clip)
-        default_index = 0 if is_log else 1
-
-        element_key = f"action_{clip.stem}"
-        if element_key not in st.session_state:
-            st.session_state[element_key] = options[default_index]
-
-        choices[clip] = st.radio(
-            f"Actie voor {clip.name}" + (" [Gedetecteerd: 10-bit GP-Log]" if is_log else " [Gedetecteerd: 8-bit Standaard]"),
-            options=options,
-            key=element_key,
-            horizontal=True
+# Download Log Knop
+st.sidebar.divider()
+if LOG_FILE.exists():
+    with open(LOG_FILE, "r", encoding="utf-8") as f:
+        st.sidebar.download_button(
+            label="📥 Download Pipeline Log",
+            data=f.read(),
+            file_name="pipeline.log",
+            mime="text/plain",
+            use_container_width=True
         )
-    st.divider()
 
-# Start van de achtergrondtaak bij klik
-if not is_active and start_batch:
-    album_id = selected_album_id
-    if enable_upload and not album_id:
-        creds = get_credentials()
-        album_id = get_or_create_album(creds, target_album_name)
+# HOOFDSCHERM LOGICA
+if is_active:
+    # Dedicated Dashboard weergave (voorkomt dat DOM overbelast raakt door 171 thumbnails)
+    st.title("🚀 Pipeline Uitvoering")
+    st.info("De GPU transcodeert en uploadt continu op de achtergrond. Dit tabblad mag open blijven staan; de verbinding blijft actief.")
+    
+    col_g, col_u = st.columns(2)
+    with col_g:
+        st.subheader("🎮 GPU Rendering")
+        st.metric("Huidige clip", batch_state.get('current_clip', '-'))
+        st.metric("Status", batch_state.get('status', '-'))
+        st.progress(min(1.0, max(0.0, clip_pct)))
+    
+    with col_u:
+        st.subheader("☁️ Google Cloud Upload")
+        st.metric("Uploadend bestand", batch_state.get('upload_clip', '-'))
+        st.metric("Transfer", batch_state.get('upload_mb', '-'))
+        st.progress(min(1.0, max(0.0, up_pct)))
+        st.caption(f"Nog **{batch_state.get('upload_queue', 0)} clips** in de wachtrij.")
 
-    job_items = [{"path": str(clip), "action": choices.get(clip, "Overslaan")} for clip in video_files]
+    if not batch_state.get("paused", False):
+        time.sleep(3)
+        st.rerun()
 
-    worker_thread = threading.Thread(
-        target=run_batch_worker,
-        args=(job_items, enable_upload, album_id, target_album_name, move_to_processed, LUT_FILE, OUTPUT_DIR, PROCESSED_DIR),
-        daemon=True
-    )
-    worker_thread.start()
-    st.rerun()
+else:
+    st.title("GoPro Video Batch Processor & Uploader")
+    st.markdown("Verwerk GoPro clips naar **1080p Rec.709 (25fps)** met hardwarematige GPU-schaling.")
+
+    if not INPUT_DIR.exists():
+        st.error(f"Input map niet gevonden: {INPUT_DIR}")
+        st.stop()
+
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    video_files = sorted(list({p.resolve(): p for p in INPUT_DIR.iterdir() if p.suffix.lower() == ".mp4"}.values()))
+
+    if not video_files:
+        st.success("🎉 **Alles is verwerkt!** De input-map is leeg.")
+        st.stop()
+
+    choices = {}
+    st.subheader(f"Gevonden clips ({len(video_files)})")
+
+    for idx, clip in enumerate(video_files):
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            thumb_file = CACHE_DIR / f"{clip.stem}_thumb.jpg"
+            if extract_thumbnail(clip, thumb_file) and thumb_file.is_file():
+                st.image(str(thumb_file), use_container_width=True)
+            else:
+                st.caption("🎬 Geen preview beschikbaar")
+            st.write(f"**{clip.name}**")
+            size_mb = clip.stat().st_size / (1024 * 1024)
+            st.caption(f"Grootte: {size_mb:.1f} MB")
+            
+        with col2:
+            options = ["GP-Log (LUT + 1080p 25fps)", "Standaard Rec.709 (Alleen 1080p 25fps)", "Overslaan"]
+            is_log = detect_is_log(clip)
+            default_index = 0 if is_log else 1
+
+            element_key = f"action_{clip.stem}"
+            if element_key not in st.session_state:
+                st.session_state[element_key] = options[default_index]
+
+            choices[clip] = st.radio(
+                f"Actie voor {clip.name}" + (" [Gedetecteerd: 10-bit GP-Log]" if is_log else " [Gedetecteerd: 8-bit Standaard]"),
+                options=options,
+                key=element_key,
+                horizontal=True
+            )
+        st.divider()
+
+    if start_batch:
+        album_id = selected_album_id
+        if enable_upload and not album_id:
+            creds = get_credentials()
+            album_id = get_or_create_album(creds, target_album_name)
+
+        job_items = [{"path": str(clip), "action": choices.get(clip, "Overslaan")} for clip in video_files]
+
+        worker_thread = threading.Thread(
+            target=run_batch_worker,
+            args=(job_items, enable_upload, album_id, target_album_name, move_to_processed, LUT_FILE, OUTPUT_DIR, PROCESSED_DIR),
+            daemon=True
+        )
+        worker_thread.start()
+        st.rerun()

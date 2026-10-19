@@ -98,6 +98,13 @@ def upload_video_file(creds, file_path: Path, album_id: str) -> bool:
     if not file_path.exists():
         return False
 
+    # Automatisch token vernieuwen als de batch langer dan 60 minuten draait
+    if creds and creds.expired and creds.refresh_token:
+        try:
+            creds.refresh(Request())
+        except Exception as e:
+            print(f"[OAuth] Kon token niet vernieuwen: {e}")
+
     file_size = file_path.stat().st_size
     upload_url = 'https://photoslibrary.googleapis.com/v1/uploads'
 

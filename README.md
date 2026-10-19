@@ -1,142 +1,105 @@
-# GoPro Video Pipeline
+# GoPro Video Pipeline v2.0
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io/)
-[![FFmpeg](https://img.shields.io/badge/Render-FFmpeg%20NVENC-007808.svg)](https://ffmpeg.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-An automated, hardware-accelerated batch processing and cloud-sync pipeline designed for GoPro footage. This utility transforms high-bitrate raw GP-Log captures into standardized **1080p Rec.709** deliveries using dedicated GPU encoding (NVIDIA NVENC) and directly uploads organized collections to **Google Photos**.
+Geautomatiseerde, hardware-geaccelereerde verwerkings- en uploadpipeline voor GoPro-videobestanden. Converteert hoge resolutie beelden (4K/5.3K) naar 1080p Rec.709 (25 fps), past automatisch de officiële GP-Log LUT toe, behoudt originele opnamedata en synchroniseert rechtstreeks naar Google Photos.
 
 ---
 
-## Key Features
+## Belangrijkste functionaliteiten
 
-- **Selective Color Pipeline:**
-  - **GP-Log Mode:** Maps wide-gamut log curves to standardized Rec.709 via the official GoPro 3D LUT (`.cube`), preserving highlight rolloff and shadow detail.
-  - **Standard Passthrough Mode:** Bypasses LUT operations for clips captured in standard profiles or Timelapses/TimeWarps, performing downscaling only.
-  - **Skip Mode:** Exclude individual clips from the current processing batch without deleting files.
-- **Hardware Acceleration (NVIDIA CUDA & NVENC):**
-  - Utilizes `h264_nvenc` encoding with high-quality presets (`p6`) and Constant Quality rate control (`-cq 20`).
-  - Offloads decoding to CUDA where available to keep host CPU usage low.
-- **Color Metadata Enforcement:**
-  - Explicitly injects `-color_primaries bt709`, `-color_trc bt709`, and `-colorspace bt709` tags into exported MP4 containers to ensure uniform reproduction across mobile devices, web browsers, and cloud decoders.
-- **Automated Cloud Sync:**
-  - Integrated with the **Google Photos Library API**.
-  - Supports automated album creation and matching.
-  - Employs resumable, chunk-ready uploads for large deliveries.
-- **Interactive Web Interface:**
-  - Fast, local Streamlit dashboard allowing users to audit source directories, assign per-clip export modes, toggle cloud sync, and monitor live progress meters.
+* **Volledige GPU-acceleratie (Zero-Copy CUDA):** Schalen naar 1080p gebeurt rechtstreeks op de videokaart via `scale_cuda`. De CPU blijft ontlast (<15%), waardoor rendering op meervoudige realtime-snelheid draait via NVIDIA NVENC.
+* **Automatische GP-Log detectie:** Detecteert 10-bit kleurprofielen (`yuv420p10le`) via `ffprobe` en past automatisch de officiële GoPro GP-Log naar Rec.709 3D LUT toe.
+* **Metadata & datumbehoud:** Behoudt interne QuickTime-tags (`-map_metadata 0`) en synchroniseert fysieke bestandstijdstempels via `os.utime()`, zodat video's chronologisch correct in de tijdlijn van Google Photos verschijnen.
+* **Ontkoppelde parallelle upload:** Zodra een clip klaar is met renderen, wordt deze op de achtergrond geüpload in blokken van 8 MB. Inclusief API-verificatie via `mediaItemId` en een automatische fallback naar de hoofdbibliotheek als een album geweigerd wordt.
+* **Robuust dashboard (Streamlit):** Toont live render- en uploadvoortgang (MB's, percentages, ETA en resterende wachtrij). Bevat een client-side heartbeat tegen het bevriezen van de browser bij inactiviteit.
+* **Configuratie & onderhoud:** Paden en instellingen zijn ontkoppeld via `config.json`. Inclusief automatische logrotatie (max. 5 MB) en opschoonknoppen voor cache en oude exports.
 
 ---
 
-## Pipeline Architecture
+## Systeemvereisten
 
-```text
-[ GoPro SD Card / Local Storage ]
-               │
-               ▼
-   [ Input Directory (Raw MP4s) ]
-               │
-               ▼
-┌──────────────────────────────────────────────┐
-│       Streamlit Dashboard (Local Web UI)     │
-│  - File Discovery & Pre-flight Validation   │
-│  - Per-clip Action Selection (Log/Std/Skip)  │
-│  - Album Target & Upload Toggles             │
-└──────────────────────┬───────────────────────┘
-                       │ [Start Processing]
-                       ▼
-┌──────────────────────────────────────────────┐
-│           FFmpeg Processing Core             │
-│  ├── Hardware Decode (CUDA)                  │
-│  ├── Filter Graph (Scale 1080p + 3D LUT)     │
-│  ├── Tagging (Rec.709 container metadata)    │
-│  └── Hardware Encode (NVENC h264_nvenc)      │
-└──────────────────────┬───────────────────────┘
-                       │
-                       ▼
-  [ Output Directory (1080p Rec.709 MP4s) ]
-                       │
-                       ▼ [Optional Upload]
-┌──────────────────────────────────────────────┐
-│           Google Photos Uploader             │
-│  ├── OAuth 2.0 Token Refresh / Handling      │
-│  ├── Resumable Binary Byte Upload            │
-│  └── Batch Item Assignment to Target Album   │
-└──────────────────────────────────────────────┘
-```
+* **Besturingssysteem:** Windows 10 of Windows 11 (64-bit)
+* **Grafische kaart:** NVIDIA GeForce RTX met recente Game Ready of Studio drivers (met NVENC- en CUDA-ondersteuning)
+* **Python:** Versie 3.10 of nieuwer
+* **FFmpeg:** Recente build met `--enable-cuda-llvm`, `--enable-nvdec` en `--enable-nvenc` toegevoegd aan het Windows PATH
 
 ---
 
-## Prerequisites
+## Installatie & Setup
 
-| Requirement | Specification | Purpose |
-| :--- | :--- | :--- |
-| **OS & GPU** | Windows 10/11 (64-bit) + NVIDIA GPU | NVENC / CUDA hardware pipeline |
-| **Python** | 3.10 or higher | Runtime for Streamlit dashboard and API client |
-| **FFmpeg** | Build with NVENC (`winget install Gyan.FFmpeg`) | Video decoding, scaling, 3D LUT filtering & encoding |
-| **GoPro LUT** | `GoPro_GP-Log_to_Rec709.cube` | Official 3D LUT for GP-Log to Rec.709 transformation |
-| **Google Cloud** | OAuth Desktop Client (`credentials.json`) | Photos Library API credentials |
-
----
-
-## Default Directory Layout
-
-| Component | Default Path | Description |
-| :--- | :--- | :--- |
-| **Input Directory** | `C:\\Users\\Admin\\Videos\\GoPro\\input` | Raw footage imported from the camera |
-| **Output Directory** | `C:\\Users\\Admin\\Videos\\GoPro\\output` | Rendered 1080p Rec.709 deliverables |
-| **Project Root** | `C:\\Users\\Admin\\Documents\\Code\\gopro-pipeline` | Application source, assets and virtual environment |
-
----
-
-## Installation & Setup
-
-### 1. Clone Repository & Setup Environment
-
+### 1. Repository klonen & Virtual Environment inrichten
 ```powershell
 git clone https://github.com/flyingwing1994/gopro-pipeline.git
 cd gopro-pipeline
 python -m venv venv
-.\\venv\\Scripts\\Activate.ps1
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-### 2. Place Configuration Files
+### 2. Google Photos API configureren
+1. Ga naar de Google Cloud Console (https://console.cloud.google.com/).
+2. Maak een project aan en activeer de Photos Library API.
+3. Configureer het OAuth-toestemmingsscherm (type: Extern, voeg je eigen Google-account toe als testgebruiker).
+4. Maak onder Inloggegevens een OAuth 2.0-client-ID aan (type: Desktop-app).
+5. Download het client-geheimenbestand, hernoem het naar `credentials.json` en plaats het in de hoofdmap van het project.
 
-Ensure both required files are placed in the root directory:
-- `credentials.json` (Google OAuth 2.0 Client ID)
-- `GoPro_GP-Log_to_Rec709.cube` (GoPro Official GP-Log 3D LUT)
+### 3. Paden en instellingen instellen (`config.json`)
+Controleer of pas de gewenste mappen aan in `config.json`:
+```json
+{
+  "directories": {
+    "input": "C:\\Users\\Admin\\Videos\\GoPro\\input",
+    "output": "C:\\Users\\Admin\\Videos\\GoPro\\output",
+    "processed": "C:\\Users\\Admin\\Videos\\GoPro\\processed"
+  },
+  "transcode": {
+    "default_resolution": "1920:1080",
+    "default_fps": 25,
+    "nvenc_preset": "p4",
+    "cq_value": 25,
+    "lut_file": "GoPro_GP-Log_to_Rec709.cube"
+  },
+  "upload": {
+    "default_album": "GoPro Exports",
+    "chunk_size_mb": 8
+  }
+}
+```
 
 ---
 
-## Usage
+## Gebruik
 
-### Launching the Dashboard
-
-Execute the Windows batch helper:
+Start de pipeline via het meegeleverde script:
 ```powershell
-.\\start_app.bat
+.\start_app.bat
 ```
-*Or via terminal:*
+Of direct via Streamlit:
 ```powershell
 streamlit run app.py
 ```
 
-### Operational Workflow:
-1. Transfer raw files into the input directory (`...\\GoPro\\input`).
-2. Open the dashboard at `http://localhost:8501`.
-3. In the sidebar:
-   - Configure the target Google Photos album name.
-   - Toggle automated upload on or off.
-4. Set the processing action for each clip:
-   - `GP-Log (LUT + 1080p)`: Transforms GP-Log gamma/gamut and scales to 1080p.
-   - `Standaard Rec.709 (Alleen 1080p)`: Direct scale to 1080p without color transforms.
-   - `Overslaan`: Excludes the file from batch execution.
-5. Click **Start Batch Verwerking**.
+### Workflow
+1. Plaats ruwe GoPro-videobestanden in de map `input/`.
+2. Open het dashboard in de browser (`http://localhost:8501`).
+3. Controleer de automatisch gedetecteerde kleurprofielen per clip (GP-Log vs. Standaard).
+4. Selecteer of maak een Google Photos-album aan in de zijbalk en klik op Start Batch Verwerking.
+5. Zodra een clip succesvol is geëxporteerd en geverifieerd door Google Photos, wordt het bronbestand automatisch verplaatst naar `processed/`.
 
 ---
 
-## License
+## Mapstructuur
 
-Distributed under the **MIT License**. See `LICENSE` for details.
+```text
+gopro-pipeline/
+├── .cache/              # Lokale videothumbnails voor het dashboard
+├── app.py               # Streamlit gebruikersinterface en pipeline-coördinatie
+├── config.py            # Centrale configuratie-inlezer en paddefinities
+├── config.json          # Aanpasbare directory- en rendervoorkeuren
+├── transcoder.py        # CUDA/NVENC FFmpeg engine met rotatielogging
+├── uploader.py          # Google Photos resumable chunked upload met verificatie
+├── style.css            # Custom dashboardstyling
+├── start_app.bat        # Automatische launcher voor Windows
+├── pipeline.log         # Actueel roterend logbestand
+├── requirements.txt     # Python afhankelijkheden
+└── README.md
+```

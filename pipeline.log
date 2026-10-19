@@ -1,0 +1,380 @@
+2026-10-19 20:34:20 [INFO] Start GPU transcode: GX012058.MP4 (Modus: log, Lengte: 15.0s)
+2026-10-19 20:36:52 [ERROR] FFmpeg fout bij GX012058.MP4:
+ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers
+  built with gcc 16.2.0 (Rev3, Built by MSYS2 project)
+  configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-cairo --enable-fontconfig --enable-iconv --enable-gnutls --enable-lcms2 --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-libsnappy --enable-zlib --enable-librist --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-libbluray --enable-libcaca --enable-libdvdnav --enable-libdvdread --enable-sdl2 --enable-libaribb24 --enable-libaribcaption --enable-libdav1d --enable-libdavs2 --enable-libopenjpeg --enable-libquirc --enable-libuavs3d --enable-libxevd --enable-libzvbi --enable-liboapv --enable-libqrencode --enable-librav1e --enable-libsvtav1 --enable-libvvenc --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs2 --enable-libxeve --enable-libxvid --enable-libaom --enable-libjxl --enable-libsvtjpegxs --enable-libvpx --enable-mediafoundation --enable-libass --enable-frei0r --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-liblensfun --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-vulkan --enable-libplacebo --enable-opencl --enable-libcdio --enable-openal --enable-libgme --enable-libmodplug --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libshine --enable-libtheora --enable-libtwolame --enable-libvo-amrwbenc --enable-libcodec2 --enable-libilbc --enable-libgsm --enable-liblc3 --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-ladspa --enable-libbs2b --enable-libflite --enable-libmysofa --enable-librubberband --enable-libsoxr --enable-chromaprint --enable-whisper
+  libavutil      61.  1.102 / 61.  1.102
+  libavcodec     63.  1.102 / 63.  1.102
+  libavformat    63.  1.102 / 63.  1.102
+  libavdevice    63.  1.102 / 63.  1.102
+  libavfilter    12.  1.102 / 12.  1.102
+  libswscale     10.  1.102 / 10.  1.102
+  libswresample   7.  1.102 /  7.  1.102
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'C:\Users\Admin\Videos\GoPro\input\GX012058.MP4':
+  Metadata:
+    major_brand     : mp41
+    minor_version   : 538120216
+    compatible_brands: mp41
+    creation_time   : 2026-07-16T17:57:29.000000Z
+    firmware        : H23.01.02.40.00
+  Duration: 00:00:15.04, start: 0.000000, bitrate: 118347 kb/s
+  Stream group #0:0[0x3]: Track Reference:
+    Stream #0:0[0x1](eng): Video: hevc (Main 10) (hvc1 / 0x31637668), yuv420p10le(pc, bt709), 5312x2988 [SAR 1:1 DAR 16:9], 118067 kb/s, 50 fps, 50 tbr, 90k tbn (default)
+      Metadata:
+        creation_time   : 2026-07-16T17:57:29.000000Z
+        handler_name    : GoPro H.265
+        encoder         : GoPro H.265 encoder
+        timecode        : 19:57:29:21
+    Stream #0:1[0x2]: Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 189 kb/s (default)
+      Metadata:
+        creation_time   : 2026-07-16T17:57:29.000000Z
+        handler_name    : GoPro AAC
+        timecode        : 19:57:29:21
+    Stream #0:2[0x3](eng): Data: none (tmcd / 0x64636D74), 0 kb/s (default)
+      Metadata:
+        creation_time   : 2026-07-16T17:57:29.000000Z
+        handler_name    : GoPro TCD
+        timecode        : 19:57:29:21
+  Stream #0:3[0x4](eng): Data: bin_data (gpmd / 0x646D7067), 55 kb/s (default)
+    Metadata:
+      creation_time   : 2026-07-16T17:57:29.000000Z
+      handler_name    : GoPro MET
+Stream mapping:
+  Stream #0:0 -> #0:0 (hevc (native) -> h264 (h264_nvenc))
+  Stream #0:1 -> #0:1 (aac (native) -> aac (native))
+Press [q] to stop, [?] for help
+Output #0, mp4, to 'C:\Users\Admin\Videos\GoPro\output\GX012058_1080p.mp4':
+  Metadata:
+    major_brand     : mp41
+    minor_version   : 538120216
+    compatible_brands: mp41
+    firmware        : H23.01.02.40.00
+    encoder         : 
+2026-10-19 20:38:28 [INFO] Start GPU transcode: GX012058.MP4 (Modus: log, Lengte: 15.0s)
+2026-10-19 20:38:32 [INFO] GPU Transcode voltooid: GX012058.MP4 -> GX012058_1080p.mp4
+2026-10-19 20:38:35 [ERROR] Google weigerde toevoeging van GX012058_1080p.mp4
+2026-10-19 20:42:15 [INFO] Start GPU transcode: GX012054.MP4 (Modus: log, Lengte: 34.7s)
+2026-10-19 20:42:23 [INFO] GPU Transcode voltooid: GX012054.MP4 -> GX012054_1080p.mp4
+2026-10-19 20:42:23 [INFO] Start GPU transcode: GX012055.MP4 (Modus: log, Lengte: 13.5s)
+2026-10-19 20:42:27 [INFO] GPU Transcode voltooid: GX012055.MP4 -> GX012055_1080p.mp4
+2026-10-19 20:42:27 [INFO] Start GPU transcode: GX012056.MP4 (Modus: log, Lengte: 33.2s)
+2026-10-19 20:42:29 [INFO] Upload geverifieerd in Google Photos: GX012054_1080p.mp4
+2026-10-19 20:42:33 [INFO] Upload geverifieerd in Google Photos: GX012055_1080p.mp4
+2026-10-19 20:42:36 [INFO] GPU Transcode voltooid: GX012056.MP4 -> GX012056_1080p.mp4
+2026-10-19 20:42:36 [INFO] Start GPU transcode: GX012057.MP4 (Modus: log, Lengte: 24.0s)
+2026-10-19 20:42:43 [INFO] GPU Transcode voltooid: GX012057.MP4 -> GX012057_1080p.mp4
+2026-10-19 20:42:43 [INFO] Start GPU transcode: GX012059.MP4 (Modus: log, Lengte: 11.4s)
+2026-10-19 20:42:43 [INFO] Upload geverifieerd in Google Photos: GX012056_1080p.mp4
+2026-10-19 20:42:46 [INFO] GPU Transcode voltooid: GX012059.MP4 -> GX012059_1080p.mp4
+2026-10-19 20:42:46 [INFO] Start GPU transcode: GX012060.MP4 (Modus: log, Lengte: 17.5s)
+2026-10-19 20:42:48 [INFO] Upload geverifieerd in Google Photos: GX012057_1080p.mp4
+2026-10-19 20:42:50 [INFO] GPU Transcode voltooid: GX012060.MP4 -> GX012060_1080p.mp4
+2026-10-19 20:42:50 [INFO] Start GPU transcode: GX012061.MP4 (Modus: log, Lengte: 13.9s)
+2026-10-19 20:42:53 [INFO] GPU Transcode voltooid: GX012061.MP4 -> GX012061_1080p.mp4
+2026-10-19 20:42:53 [INFO] Start GPU transcode: GX012062.MP4 (Modus: log, Lengte: 17.3s)
+2026-10-19 20:42:53 [INFO] Upload geverifieerd in Google Photos: GX012058_1080p.mp4
+2026-10-19 20:42:57 [INFO] Upload geverifieerd in Google Photos: GX012059_1080p.mp4
+2026-10-19 20:42:57 [INFO] GPU Transcode voltooid: GX012062.MP4 -> GX012062_1080p.mp4
+2026-10-19 20:42:57 [INFO] Start GPU transcode: GX012063.MP4 (Modus: log, Lengte: 14.0s)
+2026-10-19 20:43:01 [INFO] GPU Transcode voltooid: GX012063.MP4 -> GX012063_1080p.mp4
+2026-10-19 20:43:01 [INFO] Start GPU transcode: GX012064.MP4 (Modus: log, Lengte: 6.0s)
+2026-10-19 20:43:02 [INFO] GPU Transcode voltooid: GX012064.MP4 -> GX012064_1080p.mp4
+2026-10-19 20:43:03 [INFO] Start GPU transcode: GX012065.MP4 (Modus: log, Lengte: 21.2s)
+2026-10-19 20:43:07 [INFO] GPU Transcode voltooid: GX012065.MP4 -> GX012065_1080p.mp4
+2026-10-19 20:43:07 [INFO] Start GPU transcode: GX012066.MP4 (Modus: log, Lengte: 7.9s)
+2026-10-19 20:43:08 [INFO] Upload geverifieerd in Google Photos: GX012060_1080p.mp4
+2026-10-19 20:43:10 [INFO] GPU Transcode voltooid: GX012066.MP4 -> GX012066_1080p.mp4
+2026-10-19 20:43:10 [INFO] Start GPU transcode: GX012067.MP4 (Modus: log, Lengte: 33.7s)
+2026-10-19 20:43:13 [INFO] Upload geverifieerd in Google Photos: GX012061_1080p.mp4
+2026-10-19 20:43:17 [INFO] Upload geverifieerd in Google Photos: GX012062_1080p.mp4
+2026-10-19 20:43:17 [INFO] GPU Transcode voltooid: GX012067.MP4 -> GX012067_1080p.mp4
+2026-10-19 20:43:17 [INFO] Start GPU transcode: GX012068.MP4 (Modus: log, Lengte: 22.8s)
+2026-10-19 20:43:21 [INFO] Upload geverifieerd in Google Photos: GX012063_1080p.mp4
+2026-10-19 20:43:23 [INFO] GPU Transcode voltooid: GX012068.MP4 -> GX012068_1080p.mp4
+2026-10-19 20:43:23 [INFO] Start GPU transcode: GX012069.MP4 (Modus: log, Lengte: 27.4s)
+2026-10-19 20:43:26 [INFO] Upload geverifieerd in Google Photos: GX012064_1080p.mp4
+2026-10-19 20:43:29 [INFO] GPU Transcode voltooid: GX012069.MP4 -> GX012069_1080p.mp4
+2026-10-19 20:43:29 [INFO] Start GPU transcode: GX012070.MP4 (Modus: log, Lengte: 22.5s)
+2026-10-19 20:43:32 [INFO] Upload geverifieerd in Google Photos: GX012065_1080p.mp4
+2026-10-19 20:43:35 [INFO] GPU Transcode voltooid: GX012070.MP4 -> GX012070_1080p.mp4
+2026-10-19 20:43:35 [INFO] Start GPU transcode: GX012071.MP4 (Modus: log, Lengte: 9.3s)
+2026-10-19 20:43:37 [INFO] GPU Transcode voltooid: GX012071.MP4 -> GX012071_1080p.mp4
+2026-10-19 20:43:37 [INFO] Start GPU transcode: GX012073.MP4 (Modus: log, Lengte: 8.5s)
+2026-10-19 20:43:37 [INFO] Upload geverifieerd in Google Photos: GX012066_1080p.mp4
+2026-10-19 20:43:39 [INFO] GPU Transcode voltooid: GX012073.MP4 -> GX012073_1080p.mp4
+2026-10-19 20:43:39 [INFO] Start GPU transcode: GX012074.MP4 (Modus: log, Lengte: 13.8s)
+2026-10-19 20:43:42 [INFO] Upload geverifieerd in Google Photos: GX012067_1080p.mp4
+2026-10-19 20:43:43 [INFO] GPU Transcode voltooid: GX012074.MP4 -> GX012074_1080p.mp4
+2026-10-19 20:43:43 [INFO] Start GPU transcode: GX012075.MP4 (Modus: log, Lengte: 22.5s)
+2026-10-19 20:43:48 [INFO] Upload geverifieerd in Google Photos: GX012068_1080p.mp4
+2026-10-19 20:43:48 [INFO] GPU Transcode voltooid: GX012075.MP4 -> GX012075_1080p.mp4
+2026-10-19 20:43:48 [INFO] Start GPU transcode: GX012076.MP4 (Modus: log, Lengte: 13.4s)
+2026-10-19 20:43:52 [INFO] GPU Transcode voltooid: GX012076.MP4 -> GX012076_1080p.mp4
+2026-10-19 20:43:52 [INFO] Start GPU transcode: GX012077.MP4 (Modus: log, Lengte: 16.2s)
+2026-10-19 20:43:53 [INFO] Upload geverifieerd in Google Photos: GX012069_1080p.mp4
+2026-10-19 20:43:56 [INFO] GPU Transcode voltooid: GX012077.MP4 -> GX012077_1080p.mp4
+2026-10-19 20:43:56 [INFO] Start GPU transcode: GX012079.MP4 (Modus: log, Lengte: 16.0s)
+2026-10-19 20:43:57 [INFO] Upload geverifieerd in Google Photos: GX012070_1080p.mp4
+2026-10-19 20:44:00 [INFO] GPU Transcode voltooid: GX012079.MP4 -> GX012079_1080p.mp4
+2026-10-19 20:44:00 [INFO] Start GPU transcode: GX012080.MP4 (Modus: log, Lengte: 30.7s)
+2026-10-19 20:44:02 [INFO] Upload geverifieerd in Google Photos: GX012071_1080p.mp4
+2026-10-19 20:44:05 [INFO] Upload geverifieerd in Google Photos: GX012073_1080p.mp4
+2026-10-19 20:44:07 [INFO] GPU Transcode voltooid: GX012080.MP4 -> GX012080_1080p.mp4
+2026-10-19 20:44:07 [INFO] Start GPU transcode: GX012081.MP4 (Modus: log, Lengte: 30.0s)
+2026-10-19 20:44:12 [INFO] Upload geverifieerd in Google Photos: GX012074_1080p.mp4
+2026-10-19 20:44:14 [INFO] GPU Transcode voltooid: GX012081.MP4 -> GX012081_1080p.mp4
+2026-10-19 20:44:14 [INFO] Start GPU transcode: GX012082.MP4 (Modus: log, Lengte: 9.6s)
+2026-10-19 20:44:17 [INFO] GPU Transcode voltooid: GX012082.MP4 -> GX012082_1080p.mp4
+2026-10-19 20:44:17 [INFO] Start GPU transcode: GX012083.MP4 (Modus: log, Lengte: 16.2s)
+2026-10-19 20:44:18 [INFO] Upload geverifieerd in Google Photos: GX012075_1080p.mp4
+2026-10-19 20:44:21 [INFO] GPU Transcode voltooid: GX012083.MP4 -> GX012083_1080p.mp4
+2026-10-19 20:44:21 [INFO] Start GPU transcode: GX012084.MP4 (Modus: log, Lengte: 17.6s)
+2026-10-19 20:44:23 [INFO] Upload geverifieerd in Google Photos: GX012076_1080p.mp4
+2026-10-19 20:44:25 [INFO] GPU Transcode voltooid: GX012084.MP4 -> GX012084_1080p.mp4
+2026-10-19 20:44:25 [INFO] Start GPU transcode: GX012085.MP4 (Modus: log, Lengte: 38.4s)
+2026-10-19 20:44:28 [INFO] Upload geverifieerd in Google Photos: GX012077_1080p.mp4
+2026-10-19 20:44:33 [INFO] Upload geverifieerd in Google Photos: GX012079_1080p.mp4
+2026-10-19 20:44:35 [INFO] GPU Transcode voltooid: GX012085.MP4 -> GX012085_1080p.mp4
+2026-10-19 20:44:35 [INFO] Start GPU transcode: GX012086.MP4 (Modus: log, Lengte: 18.1s)
+2026-10-19 20:44:37 [INFO] Upload geverifieerd in Google Photos: GX012080_1080p.mp4
+2026-10-19 20:44:39 [INFO] GPU Transcode voltooid: GX012086.MP4 -> GX012086_1080p.mp4
+2026-10-19 20:44:39 [INFO] Start GPU transcode: GX012087.MP4 (Modus: log, Lengte: 15.0s)
+2026-10-19 20:44:43 [INFO] GPU Transcode voltooid: GX012087.MP4 -> GX012087_1080p.mp4
+2026-10-19 20:44:43 [INFO] Start GPU transcode: GX012088.MP4 (Modus: log, Lengte: 21.1s)
+2026-10-19 20:44:43 [INFO] Upload geverifieerd in Google Photos: GX012081_1080p.mp4
+2026-10-19 20:44:48 [INFO] GPU Transcode voltooid: GX012088.MP4 -> GX012088_1080p.mp4
+2026-10-19 20:44:48 [INFO] Start GPU transcode: GX012089.MP4 (Modus: log, Lengte: 25.0s)
+2026-10-19 20:44:48 [INFO] Upload geverifieerd in Google Photos: GX012082_1080p.mp4
+2026-10-19 20:44:54 [INFO] Upload geverifieerd in Google Photos: GX012083_1080p.mp4
+2026-10-19 20:44:54 [INFO] GPU Transcode voltooid: GX012089.MP4 -> GX012089_1080p.mp4
+2026-10-19 20:44:54 [INFO] Start GPU transcode: GX012090.MP4 (Modus: log, Lengte: 20.8s)
+2026-10-19 20:44:59 [INFO] GPU Transcode voltooid: GX012090.MP4 -> GX012090_1080p.mp4
+2026-10-19 20:44:59 [INFO] Start GPU transcode: GX012091.MP4 (Modus: log, Lengte: 8.3s)
+2026-10-19 20:45:00 [INFO] Upload geverifieerd in Google Photos: GX012084_1080p.mp4
+2026-10-19 20:45:02 [INFO] GPU Transcode voltooid: GX012091.MP4 -> GX012091_1080p.mp4
+2026-10-19 20:45:02 [INFO] Start GPU transcode: GX012092.MP4 (Modus: log, Lengte: 16.2s)
+2026-10-19 20:45:06 [INFO] GPU Transcode voltooid: GX012092.MP4 -> GX012092_1080p.mp4
+2026-10-19 20:45:06 [INFO] Start GPU transcode: GX012093.MP4 (Modus: log, Lengte: 10.0s)
+2026-10-19 20:45:08 [INFO] Upload geverifieerd in Google Photos: GX012085_1080p.mp4
+2026-10-19 20:45:08 [INFO] GPU Transcode voltooid: GX012093.MP4 -> GX012093_1080p.mp4
+2026-10-19 20:45:08 [INFO] Start GPU transcode: GX012094.MP4 (Modus: log, Lengte: 42.9s)
+2026-10-19 20:45:13 [INFO] Upload geverifieerd in Google Photos: GX012086_1080p.mp4
+2026-10-19 20:45:18 [INFO] Upload geverifieerd in Google Photos: GX012087_1080p.mp4
+2026-10-19 20:45:18 [INFO] GPU Transcode voltooid: GX012094.MP4 -> GX012094_1080p.mp4
+2026-10-19 20:45:19 [INFO] Start GPU transcode: GX012095.MP4 (Modus: log, Lengte: 53.8s)
+2026-10-19 20:45:23 [INFO] Upload geverifieerd in Google Photos: GX012088_1080p.mp4
+2026-10-19 20:45:30 [INFO] Upload geverifieerd in Google Photos: GX012089_1080p.mp4
+2026-10-19 20:45:31 [INFO] GPU Transcode voltooid: GX012095.MP4 -> GX012095_1080p.mp4
+2026-10-19 20:45:32 [INFO] Start GPU transcode: GX012096.MP4 (Modus: log, Lengte: 14.2s)
+2026-10-19 20:45:35 [INFO] GPU Transcode voltooid: GX012096.MP4 -> GX012096_1080p.mp4
+2026-10-19 20:45:35 [INFO] Start GPU transcode: GX012097.MP4 (Modus: log, Lengte: 29.2s)
+2026-10-19 20:45:36 [INFO] Upload geverifieerd in Google Photos: GX012090_1080p.mp4
+2026-10-19 20:45:40 [INFO] Upload geverifieerd in Google Photos: GX012091_1080p.mp4
+2026-10-19 20:45:42 [INFO] GPU Transcode voltooid: GX012097.MP4 -> GX012097_1080p.mp4
+2026-10-19 20:45:42 [INFO] Start GPU transcode: GX012098.MP4 (Modus: log, Lengte: 22.9s)
+2026-10-19 20:45:45 [INFO] Upload geverifieerd in Google Photos: GX012092_1080p.mp4
+2026-10-19 20:45:48 [INFO] GPU Transcode voltooid: GX012098.MP4 -> GX012098_1080p.mp4
+2026-10-19 20:45:48 [INFO] Start GPU transcode: GX012099.MP4 (Modus: log, Lengte: 9.2s)
+2026-10-19 20:45:50 [INFO] Upload geverifieerd in Google Photos: GX012093_1080p.mp4
+2026-10-19 20:45:50 [INFO] GPU Transcode voltooid: GX012099.MP4 -> GX012099_1080p.mp4
+2026-10-19 20:45:50 [INFO] Start GPU transcode: GX012100.MP4 (Modus: log, Lengte: 24.4s)
+2026-10-19 20:45:56 [INFO] Upload geverifieerd in Google Photos: GX012094_1080p.mp4
+2026-10-19 20:45:56 [INFO] GPU Transcode voltooid: GX012100.MP4 -> GX012100_1080p.mp4
+2026-10-19 20:45:56 [INFO] Start GPU transcode: GX012101.MP4 (Modus: log, Lengte: 19.5s)
+2026-10-19 20:46:01 [INFO] GPU Transcode voltooid: GX012101.MP4 -> GX012101_1080p.mp4
+2026-10-19 20:46:01 [INFO] Start GPU transcode: GX012102.MP4 (Modus: log, Lengte: 17.8s)
+2026-10-19 20:46:05 [INFO] Upload geverifieerd in Google Photos: GX012095_1080p.mp4
+2026-10-19 20:46:06 [INFO] GPU Transcode voltooid: GX012102.MP4 -> GX012102_1080p.mp4
+2026-10-19 20:46:06 [INFO] Start GPU transcode: GX012103.MP4 (Modus: log, Lengte: 96.0s)
+2026-10-19 20:46:09 [INFO] Upload geverifieerd in Google Photos: GX012096_1080p.mp4
+2026-10-19 20:46:16 [INFO] Upload geverifieerd in Google Photos: GX012097_1080p.mp4
+2026-10-19 20:46:21 [INFO] Upload geverifieerd in Google Photos: GX012098_1080p.mp4
+2026-10-19 20:46:26 [INFO] Upload geverifieerd in Google Photos: GX012099_1080p.mp4
+2026-10-19 20:46:27 [INFO] GPU Transcode voltooid: GX012103.MP4 -> GX012103_1080p.mp4
+2026-10-19 20:46:28 [INFO] Start GPU transcode: GX012104.MP4 (Modus: log, Lengte: 35.1s)
+2026-10-19 20:46:34 [INFO] Upload geverifieerd in Google Photos: GX012100_1080p.mp4
+2026-10-19 20:46:36 [INFO] GPU Transcode voltooid: GX012104.MP4 -> GX012104_1080p.mp4
+2026-10-19 20:46:36 [INFO] Start GPU transcode: GX012105.MP4 (Modus: log, Lengte: 57.2s)
+2026-10-19 20:46:38 [INFO] Upload geverifieerd in Google Photos: GX012101_1080p.mp4
+2026-10-19 20:46:43 [INFO] Upload geverifieerd in Google Photos: GX012102_1080p.mp4
+2026-10-19 20:46:50 [INFO] GPU Transcode voltooid: GX012105.MP4 -> GX012105_1080p.mp4
+2026-10-19 20:46:50 [INFO] Start GPU transcode: GX012106.MP4 (Modus: log, Lengte: 47.0s)
+2026-10-19 20:46:58 [INFO] Upload geverifieerd in Google Photos: GX012103_1080p.mp4
+2026-10-19 20:47:00 [INFO] GPU Transcode voltooid: GX012106.MP4 -> GX012106_1080p.mp4
+2026-10-19 20:47:00 [INFO] Start GPU transcode: GX012107.MP4 (Modus: log, Lengte: 14.7s)
+2026-10-19 20:47:04 [INFO] GPU Transcode voltooid: GX012107.MP4 -> GX012107_1080p.mp4
+2026-10-19 20:47:04 [INFO] Start GPU transcode: GX012108.MP4 (Modus: log, Lengte: 34.7s)
+2026-10-19 20:47:05 [INFO] Upload geverifieerd in Google Photos: GX012104_1080p.mp4
+2026-10-19 20:47:11 [INFO] Upload geverifieerd in Google Photos: GX012105_1080p.mp4
+2026-10-19 20:47:12 [INFO] GPU Transcode voltooid: GX012108.MP4 -> GX012108_1080p.mp4
+2026-10-19 20:47:13 [INFO] Start GPU transcode: GX012109.MP4 (Modus: log, Lengte: 18.3s)
+2026-10-19 20:47:17 [INFO] Upload geverifieerd in Google Photos: GX012106_1080p.mp4
+2026-10-19 20:47:17 [INFO] GPU Transcode voltooid: GX012109.MP4 -> GX012109_1080p.mp4
+2026-10-19 20:47:17 [INFO] Start GPU transcode: GX012110.MP4 (Modus: log, Lengte: 18.7s)
+2026-10-19 20:47:21 [INFO] GPU Transcode voltooid: GX012110.MP4 -> GX012110_1080p.mp4
+2026-10-19 20:47:21 [INFO] Start GPU transcode: GX012111.MP4 (Modus: log, Lengte: 36.4s)
+2026-10-19 20:47:22 [INFO] Upload geverifieerd in Google Photos: GX012107_1080p.mp4
+2026-10-19 20:47:27 [INFO] Upload geverifieerd in Google Photos: GX012108_1080p.mp4
+2026-10-19 20:47:30 [INFO] GPU Transcode voltooid: GX012111.MP4 -> GX012111_1080p.mp4
+2026-10-19 20:47:30 [INFO] Start GPU transcode: GX012112.MP4 (Modus: log, Lengte: 7.6s)
+2026-10-19 20:47:32 [INFO] Upload geverifieerd in Google Photos: GX012109_1080p.mp4
+2026-10-19 20:47:32 [INFO] GPU Transcode voltooid: GX012112.MP4 -> GX012112_1080p.mp4
+2026-10-19 20:47:32 [INFO] Start GPU transcode: GX012113.MP4 (Modus: log, Lengte: 19.6s)
+2026-10-19 20:47:37 [INFO] Upload geverifieerd in Google Photos: GX012110_1080p.mp4
+2026-10-19 20:47:37 [INFO] GPU Transcode voltooid: GX012113.MP4 -> GX012113_1080p.mp4
+2026-10-19 20:47:37 [INFO] Start GPU transcode: GX012114.MP4 (Modus: log, Lengte: 33.5s)
+2026-10-19 20:47:43 [INFO] Upload geverifieerd in Google Photos: GX012111_1080p.mp4
+2026-10-19 20:47:45 [INFO] GPU Transcode voltooid: GX012114.MP4 -> GX012114_1080p.mp4
+2026-10-19 20:47:45 [INFO] Start GPU transcode: GX012115.MP4 (Modus: log, Lengte: 59.6s)
+2026-10-19 20:47:48 [INFO] Upload geverifieerd in Google Photos: GX012112_1080p.mp4
+2026-10-19 20:47:53 [INFO] Upload geverifieerd in Google Photos: GX012113_1080p.mp4
+2026-10-19 20:47:59 [INFO] GPU Transcode voltooid: GX012115.MP4 -> GX012115_1080p.mp4
+2026-10-19 20:47:59 [INFO] Start GPU transcode: GX012116.MP4 (Modus: log, Lengte: 11.1s)
+2026-10-19 20:47:59 [INFO] Upload geverifieerd in Google Photos: GX012114_1080p.mp4
+2026-10-19 20:48:02 [INFO] GPU Transcode voltooid: GX012116.MP4 -> GX012116_1080p.mp4
+2026-10-19 20:48:02 [INFO] Start GPU transcode: GX012117.MP4 (Modus: log, Lengte: 14.7s)
+2026-10-19 20:48:06 [INFO] GPU Transcode voltooid: GX012117.MP4 -> GX012117_1080p.mp4
+2026-10-19 20:48:06 [INFO] Start GPU transcode: GX012118.MP4 (Modus: log, Lengte: 10.2s)
+2026-10-19 20:48:08 [INFO] Upload geverifieerd in Google Photos: GX012115_1080p.mp4
+2026-10-19 20:48:08 [INFO] GPU Transcode voltooid: GX012118.MP4 -> GX012118_1080p.mp4
+2026-10-19 20:48:09 [INFO] Start GPU transcode: GX012119.MP4 (Modus: log, Lengte: 45.4s)
+2026-10-19 20:48:12 [INFO] Upload geverifieerd in Google Photos: GX012116_1080p.mp4
+2026-10-19 20:48:17 [INFO] Upload geverifieerd in Google Photos: GX012117_1080p.mp4
+2026-10-19 20:48:19 [INFO] GPU Transcode voltooid: GX012119.MP4 -> GX012119_1080p.mp4
+2026-10-19 20:48:19 [INFO] Start GPU transcode: GX012120.MP4 (Modus: log, Lengte: 12.8s)
+2026-10-19 20:48:22 [INFO] Upload geverifieerd in Google Photos: GX012118_1080p.mp4
+2026-10-19 20:48:22 [INFO] GPU Transcode voltooid: GX012120.MP4 -> GX012120_1080p.mp4
+2026-10-19 20:48:22 [INFO] Start GPU transcode: GX012121.MP4 (Modus: log, Lengte: 21.3s)
+2026-10-19 20:48:28 [INFO] GPU Transcode voltooid: GX012121.MP4 -> GX012121_1080p.mp4
+2026-10-19 20:48:28 [INFO] Start GPU transcode: GX012122.MP4 (Modus: log, Lengte: 16.5s)
+2026-10-19 20:48:30 [INFO] Upload geverifieerd in Google Photos: GX012119_1080p.mp4
+2026-10-19 20:48:32 [INFO] GPU Transcode voltooid: GX012122.MP4 -> GX012122_1080p.mp4
+2026-10-19 20:48:32 [INFO] Start GPU transcode: GX012123.MP4 (Modus: log, Lengte: 33.7s)
+2026-10-19 20:48:35 [INFO] Upload geverifieerd in Google Photos: GX012120_1080p.mp4
+2026-10-19 20:48:40 [INFO] GPU Transcode voltooid: GX012123.MP4 -> GX012123_1080p.mp4
+2026-10-19 20:48:40 [INFO] Start GPU transcode: GX012124.MP4 (Modus: log, Lengte: 0.1s)
+2026-10-19 20:48:40 [INFO] GPU Transcode voltooid: GX012124.MP4 -> GX012124_1080p.mp4
+2026-10-19 20:48:40 [INFO] Start GPU transcode: GX012125.MP4 (Modus: log, Lengte: 7.0s)
+2026-10-19 20:48:42 [INFO] Upload geverifieerd in Google Photos: GX012121_1080p.mp4
+2026-10-19 20:48:42 [INFO] GPU Transcode voltooid: GX012125.MP4 -> GX012125_1080p.mp4
+2026-10-19 20:48:42 [INFO] Start GPU transcode: GX012126.MP4 (Modus: log, Lengte: 29.1s)
+2026-10-19 20:48:47 [INFO] Upload geverifieerd in Google Photos: GX012122_1080p.mp4
+2026-10-19 20:48:49 [INFO] GPU Transcode voltooid: GX012126.MP4 -> GX012126_1080p.mp4
+2026-10-19 20:48:49 [INFO] Start GPU transcode: GX012127.MP4 (Modus: log, Lengte: 49.5s)
+2026-10-19 20:48:53 [INFO] Upload geverifieerd in Google Photos: GX012123_1080p.mp4
+2026-10-19 20:48:57 [INFO] Upload geverifieerd in Google Photos: GX012124_1080p.mp4
+2026-10-19 20:49:01 [INFO] GPU Transcode voltooid: GX012127.MP4 -> GX012127_1080p.mp4
+2026-10-19 20:49:01 [INFO] Start GPU transcode: GX012128.MP4 (Modus: log, Lengte: 10.5s)
+2026-10-19 20:49:01 [INFO] Upload geverifieerd in Google Photos: GX012125_1080p.mp4
+2026-10-19 20:49:03 [INFO] GPU Transcode voltooid: GX012128.MP4 -> GX012128_1080p.mp4
+2026-10-19 20:49:03 [INFO] Start GPU transcode: GX012129.MP4 (Modus: log, Lengte: 104.5s)
+2026-10-19 20:49:05 [INFO] Upload geverifieerd in Google Photos: GX012126_1080p.mp4
+2026-10-19 20:49:12 [INFO] Upload geverifieerd in Google Photos: GX012127_1080p.mp4
+2026-10-19 20:49:17 [INFO] Upload geverifieerd in Google Photos: GX012128_1080p.mp4
+2026-10-19 20:49:27 [INFO] GPU Transcode voltooid: GX012129.MP4 -> GX012129_1080p.mp4
+2026-10-19 20:49:27 [INFO] Start GPU transcode: GX012130.MP4 (Modus: log, Lengte: 46.3s)
+2026-10-19 20:49:35 [INFO] Upload geverifieerd in Google Photos: GX012129_1080p.mp4
+2026-10-19 20:49:38 [INFO] GPU Transcode voltooid: GX012130.MP4 -> GX012130_1080p.mp4
+2026-10-19 20:49:38 [INFO] Start GPU transcode: GX012132.MP4 (Modus: log, Lengte: 14.7s)
+2026-10-19 20:49:42 [INFO] GPU Transcode voltooid: GX012132.MP4 -> GX012132_1080p.mp4
+2026-10-19 20:49:42 [INFO] Start GPU transcode: GX012133.MP4 (Modus: log, Lengte: 13.2s)
+2026-10-19 20:49:45 [INFO] Upload geverifieerd in Google Photos: GX012130_1080p.mp4
+2026-10-19 20:49:45 [INFO] GPU Transcode voltooid: GX012133.MP4 -> GX012133_1080p.mp4
+2026-10-19 20:49:45 [INFO] Start GPU transcode: GX012134.MP4 (Modus: log, Lengte: 131.1s)
+2026-10-19 20:49:49 [INFO] Upload geverifieerd in Google Photos: GX012132_1080p.mp4
+2026-10-19 20:49:54 [INFO] Upload geverifieerd in Google Photos: GX012133_1080p.mp4
+2026-10-19 20:50:15 [INFO] GPU Transcode voltooid: GX012134.MP4 -> GX012134_1080p.mp4
+2026-10-19 20:50:15 [INFO] Start GPU transcode: GX012135.MP4 (Modus: log, Lengte: 37.7s)
+2026-10-19 20:50:25 [INFO] GPU Transcode voltooid: GX012135.MP4 -> GX012135_1080p.mp4
+2026-10-19 20:50:25 [INFO] Start GPU transcode: GX012136.MP4 (Modus: log, Lengte: 32.3s)
+2026-10-19 20:50:30 [INFO] Upload geverifieerd in Google Photos: GX012134_1080p.mp4
+2026-10-19 20:50:33 [INFO] GPU Transcode voltooid: GX012136.MP4 -> GX012136_1080p.mp4
+2026-10-19 20:50:33 [INFO] Start GPU transcode: GX012137.MP4 (Modus: log, Lengte: 44.5s)
+2026-10-19 20:50:38 [INFO] Upload geverifieerd in Google Photos: GX012135_1080p.mp4
+2026-10-19 20:50:44 [INFO] GPU Transcode voltooid: GX012137.MP4 -> GX012137_1080p.mp4
+2026-10-19 20:50:44 [INFO] Start GPU transcode: GX012138.MP4 (Modus: log, Lengte: 37.8s)
+2026-10-19 20:50:45 [INFO] Upload geverifieerd in Google Photos: GX012136_1080p.mp4
+2026-10-19 20:50:53 [INFO] Upload geverifieerd in Google Photos: GX012137_1080p.mp4
+2026-10-19 20:50:53 [INFO] GPU Transcode voltooid: GX012138.MP4 -> GX012138_1080p.mp4
+2026-10-19 20:50:53 [INFO] Start GPU transcode: GX012140.MP4 (Modus: log, Lengte: 21.9s)
+2026-10-19 20:50:58 [INFO] GPU Transcode voltooid: GX012140.MP4 -> GX012140_1080p.mp4
+2026-10-19 20:50:58 [INFO] Start GPU transcode: GX012141.MP4 (Modus: log, Lengte: 13.8s)
+2026-10-19 20:50:59 [INFO] Upload geverifieerd in Google Photos: GX012138_1080p.mp4
+2026-10-19 20:51:02 [INFO] GPU Transcode voltooid: GX012141.MP4 -> GX012141_1080p.mp4
+2026-10-19 20:51:02 [INFO] Start GPU transcode: GX012142.MP4 (Modus: log, Lengte: 16.3s)
+2026-10-19 20:51:04 [INFO] Upload geverifieerd in Google Photos: GX012140_1080p.mp4
+2026-10-19 20:51:06 [INFO] GPU Transcode voltooid: GX012142.MP4 -> GX012142_1080p.mp4
+2026-10-19 20:51:06 [INFO] Start GPU transcode: GX012143.MP4 (Modus: log, Lengte: 12.8s)
+2026-10-19 20:51:08 [INFO] Upload geverifieerd in Google Photos: GX012141_1080p.mp4
+2026-10-19 20:51:09 [INFO] GPU Transcode voltooid: GX012143.MP4 -> GX012143_1080p.mp4
+2026-10-19 20:51:09 [INFO] Start GPU transcode: GX012144.MP4 (Modus: log, Lengte: 27.9s)
+2026-10-19 20:51:13 [INFO] Upload geverifieerd in Google Photos: GX012142_1080p.mp4
+2026-10-19 20:51:15 [INFO] GPU Transcode voltooid: GX012144.MP4 -> GX012144_1080p.mp4
+2026-10-19 20:51:15 [INFO] Start GPU transcode: GX012145.MP4 (Modus: log, Lengte: 20.4s)
+2026-10-19 20:51:17 [INFO] Upload geverifieerd in Google Photos: GX012143_1080p.mp4
+2026-10-19 20:51:20 [INFO] GPU Transcode voltooid: GX012145.MP4 -> GX012145_1080p.mp4
+2026-10-19 20:51:20 [INFO] Start GPU transcode: GX012146.MP4 (Modus: log, Lengte: 24.3s)
+2026-10-19 20:51:23 [INFO] Upload geverifieerd in Google Photos: GX012144_1080p.mp4
+2026-10-19 20:51:26 [INFO] GPU Transcode voltooid: GX012146.MP4 -> GX012146_1080p.mp4
+2026-10-19 20:51:26 [INFO] Start GPU transcode: GX012147.MP4 (Modus: log, Lengte: 37.2s)
+2026-10-19 20:51:29 [INFO] Upload geverifieerd in Google Photos: GX012145_1080p.mp4
+2026-10-19 20:51:35 [INFO] Upload geverifieerd in Google Photos: GX012146_1080p.mp4
+2026-10-19 20:51:35 [INFO] GPU Transcode voltooid: GX012147.MP4 -> GX012147_1080p.mp4
+2026-10-19 20:51:35 [INFO] Start GPU transcode: GX012148.MP4 (Modus: log, Lengte: 7.7s)
+2026-10-19 20:51:37 [INFO] GPU Transcode voltooid: GX012148.MP4 -> GX012148_1080p.mp4
+2026-10-19 20:51:37 [INFO] Start GPU transcode: GX012149.MP4 (Modus: log, Lengte: 20.1s)
+2026-10-19 20:51:42 [INFO] Upload geverifieerd in Google Photos: GX012147_1080p.mp4
+2026-10-19 20:51:42 [INFO] GPU Transcode voltooid: GX012149.MP4 -> GX012149_1080p.mp4
+2026-10-19 20:51:42 [INFO] Start GPU transcode: GX012150.MP4 (Modus: log, Lengte: 58.5s)
+2026-10-19 20:51:47 [INFO] Upload geverifieerd in Google Photos: GX012148_1080p.mp4
+2026-10-19 20:51:53 [INFO] Upload geverifieerd in Google Photos: GX012149_1080p.mp4
+2026-10-19 20:51:56 [INFO] GPU Transcode voltooid: GX012150.MP4 -> GX012150_1080p.mp4
+2026-10-19 20:51:56 [INFO] Start GPU transcode: GX012151.MP4 (Modus: log, Lengte: 127.8s)
+2026-10-19 20:52:05 [INFO] Upload geverifieerd in Google Photos: GX012150_1080p.mp4
+2026-10-19 20:52:26 [INFO] GPU Transcode voltooid: GX012151.MP4 -> GX012151_1080p.mp4
+2026-10-19 20:52:26 [INFO] Start GPU transcode: GX012152.MP4 (Modus: log, Lengte: 1.4s)
+2026-10-19 20:52:27 [INFO] GPU Transcode voltooid: GX012152.MP4 -> GX012152_1080p.mp4
+2026-10-19 20:52:27 [INFO] Start GPU transcode: GX012153.MP4 (Modus: log, Lengte: 11.5s)
+2026-10-19 20:52:30 [INFO] GPU Transcode voltooid: GX012153.MP4 -> GX012153_1080p.mp4
+2026-10-19 20:52:30 [INFO] Start GPU transcode: GX012154.MP4 (Modus: log, Lengte: 15.7s)
+2026-10-19 20:52:34 [INFO] GPU Transcode voltooid: GX012154.MP4 -> GX012154_1080p.mp4
+2026-10-19 20:52:34 [INFO] Start GPU transcode: GX012155.MP4 (Modus: log, Lengte: 35.9s)
+2026-10-19 20:52:39 [INFO] Upload geverifieerd in Google Photos: GX012151_1080p.mp4
+2026-10-19 20:52:42 [INFO] GPU Transcode voltooid: GX012155.MP4 -> GX012155_1080p.mp4
+2026-10-19 20:52:42 [INFO] Start GPU transcode: GX012156.MP4 (Modus: log, Lengte: 11.8s)
+2026-10-19 20:52:43 [INFO] Upload geverifieerd in Google Photos: GX012152_1080p.mp4
+2026-10-19 20:52:45 [INFO] GPU Transcode voltooid: GX012156.MP4 -> GX012156_1080p.mp4
+2026-10-19 20:52:45 [INFO] Start GPU transcode: GX012157.MP4 (Modus: log, Lengte: 27.3s)
+2026-10-19 20:52:48 [INFO] Upload geverifieerd in Google Photos: GX012153_1080p.mp4
+2026-10-19 20:52:52 [INFO] GPU Transcode voltooid: GX012157.MP4 -> GX012157_1080p.mp4
+2026-10-19 20:52:52 [INFO] Start GPU transcode: GX012158.MP4 (Modus: log, Lengte: 11.4s)
+2026-10-19 20:52:53 [INFO] Upload geverifieerd in Google Photos: GX012154_1080p.mp4
+2026-10-19 20:52:55 [INFO] GPU Transcode voltooid: GX012158.MP4 -> GX012158_1080p.mp4
+2026-10-19 20:52:55 [INFO] Start GPU transcode: GX012159.MP4 (Modus: log, Lengte: 13.5s)
+2026-10-19 20:52:58 [INFO] GPU Transcode voltooid: GX012159.MP4 -> GX012159_1080p.mp4
+2026-10-19 20:52:58 [INFO] Start GPU transcode: GX012160.MP4 (Modus: log, Lengte: 13.5s)
+2026-10-19 20:53:00 [INFO] Upload geverifieerd in Google Photos: GX012155_1080p.mp4
+2026-10-19 20:53:02 [INFO] GPU Transcode voltooid: GX012160.MP4 -> GX012160_1080p.mp4
+2026-10-19 20:53:02 [INFO] Start GPU transcode: GX012161.MP4 (Modus: log, Lengte: 20.7s)
+2026-10-19 20:53:05 [INFO] Upload geverifieerd in Google Photos: GX012156_1080p.mp4
+2026-10-19 20:53:07 [INFO] GPU Transcode voltooid: GX012161.MP4 -> GX012161_1080p.mp4
+2026-10-19 20:53:07 [INFO] Start GPU transcode: GX012162.MP4 (Modus: log, Lengte: 11.6s)
+2026-10-19 20:53:10 [INFO] GPU Transcode voltooid: GX012162.MP4 -> GX012162_1080p.mp4
+2026-10-19 20:53:10 [INFO] Start GPU transcode: GX012163.MP4 (Modus: log, Lengte: 7.0s)
+2026-10-19 20:53:10 [INFO] Upload geverifieerd in Google Photos: GX012157_1080p.mp4
+2026-10-19 20:53:12 [INFO] GPU Transcode voltooid: GX012163.MP4 -> GX012163_1080p.mp4
+2026-10-19 20:53:12 [INFO] Start GPU transcode: GX012164.MP4 (Modus: log, Lengte: 58.8s)
+2026-10-19 20:53:15 [INFO] Upload geverifieerd in Google Photos: GX012158_1080p.mp4
+2026-10-19 20:53:18 [INFO] Upload geverifieerd in Google Photos: GX012159_1080p.mp4
+2026-10-19 20:53:23 [INFO] Upload geverifieerd in Google Photos: GX012160_1080p.mp4
+2026-10-19 20:53:25 [INFO] GPU Transcode voltooid: GX012164.MP4 -> GX012164_1080p.mp4
+2026-10-19 20:53:28 [INFO] Upload geverifieerd in Google Photos: GX012161_1080p.mp4
+2026-10-19 20:53:33 [INFO] Upload geverifieerd in Google Photos: GX012162_1080p.mp4
+2026-10-19 20:53:38 [INFO] Upload geverifieerd in Google Photos: GX012163_1080p.mp4
+2026-10-19 20:53:44 [INFO] Upload geverifieerd in Google Photos: GX012164_1080p.mp4
+2026-10-19 21:08:08 [INFO] Upload geverifieerd in Google Photos: GX012162_1080p.mp4
+2026-10-19 21:08:12 [INFO] Upload geverifieerd in Google Photos: GX012163_1080p.mp4
+2026-10-19 21:08:18 [INFO] Upload geverifieerd in Google Photos: GX012164_1080p.mp4
+2026-10-19 21:09:35 [INFO] Start GPU transcode: test1.MP4 (Modus: log, Lengte: 13.5s)
+2026-10-19 21:09:38 [INFO] GPU Transcode voltooid: test1.MP4 -> test1_1080p.mp4
+2026-10-19 21:09:41 [ERROR] Google weigerde toevoeging van test1_1080p.mp4

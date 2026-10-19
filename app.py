@@ -20,8 +20,8 @@ if not INPUT_DIR.exists():
     st.error(f"Input map niet gevonden: {INPUT_DIR}")
     st.stop()
 
-# Zoek alle video's
-video_files = sorted(list(INPUT_DIR.glob("*.MP4")) + list(INPUT_DIR.glob("*.mp4")))
+# Zoek alle unieke MP4 video's (voorkom dubbelingen door hoofdletterongevoeligheid van Windows)
+video_files = sorted(list({p.resolve(): p for p in INPUT_DIR.iterdir() if p.suffix.lower() == ".mp4"}.values()))
 
 if not video_files:
     st.info(f"Geen MP4-bestanden gevonden in `{INPUT_DIR}`.")
@@ -31,7 +31,7 @@ with st.form("batch_form"):
     choices = {}
     st.subheader(f"Gevonden clips ({len(video_files)})")
 
-    for clip in video_files:
+    for idx, clip in enumerate(video_files):
         col1, col2 = st.columns([1, 2])
         with col1:
             st.write(f"**{clip.name}**")
@@ -42,7 +42,7 @@ with st.form("batch_form"):
                 f"Actie voor {clip.name}",
                 options=["GP-Log (LUT + 1080p)", "Standaard Rec.709 (Alleen 1080p)", "Overslaan"],
                 index=0,
-                key=clip.name,
+                key=f"{clip.name}_{idx}",
                 horizontal=True
             )
         st.divider()

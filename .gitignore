@@ -22,3 +22,5 @@ output/
 *.MOV
 .cache/
 albums.json
+
+batch_status.json

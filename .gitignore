@@ -1,0 +1,22 @@
+# Python virtual environment
+venv/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Google Cloud OAuth sleutels
+credentials.json
+token.json
+
+# LUT bestanden
+*.cube
+
+# Video mappen en bestanden
+input/
+output/
+*.mp4
+*.MP4
+*.mov
+*.MOV

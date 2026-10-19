@@ -1,0 +1,18 @@
+{
+  "directories": {
+    "input": "C:\\Users\\Admin\\Videos\\GoPro\\input",
+    "output": "C:\\Users\\Admin\\Videos\\GoPro\\output",
+    "processed": "C:\\Users\\Admin\\Videos\\GoPro\\processed"
+  },
+  "transcode": {
+    "default_resolution": "1920:1080",
+    "default_fps": 25,
+    "nvenc_preset": "p4",
+    "cq_value": 25,
+    "lut_file": "GoPro_GP-Log_to_Rec709.cube"
+  },
+  "upload": {
+    "default_album": "GoPro Exports",
+    "chunk_size_mb": 8
+  }
+}

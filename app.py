@@ -10,16 +10,11 @@ from pathlib import Path
 from transcoder import transcode_clip, extract_thumbnail, detect_is_log
 from uploader import get_credentials, get_or_create_album, list_app_albums, upload_video_file
 
-BASE_DIR = Path(__file__).resolve().parent
-STATUS_FILE = BASE_DIR / "batch_status.json"
-LOG_FILE = BASE_DIR / "pipeline.log"
+from config import (
+    BASE_DIR, INPUT_DIR, OUTPUT_DIR, PROCESSED_DIR,
+    CACHE_DIR, STATUS_FILE, LOG_FILE, LUT_FILE
+)
 CSS_FILE = BASE_DIR / "style.css"
-LUT_FILE = "GoPro_GP-Log_to_Rec709.cube"
-
-INPUT_DIR = Path(r"C:\Users\Admin\Videos\GoPro\input")
-OUTPUT_DIR = Path(r"C:\Users\Admin\Videos\GoPro\output")
-PROCESSED_DIR = Path(r"C:\Users\Admin\Videos\GoPro\processed")
-CACHE_DIR = BASE_DIR / ".cache"
 
 st.set_page_config(page_title="GoPro Video Processor v2.0", layout="wide")
 
@@ -278,7 +273,35 @@ else:
     start_batch = st.sidebar.button("🚀 Start Batch Verwerking", type="primary", use_container_width=True)
 
 # Download Log Knop
+# Onderhoud & Schijfruimte in de zijbalk
 st.sidebar.divider()
+st.sidebar.subheader("🧹 Onderhoud")
+
+cache_files = list(CACHE_DIR.glob("*.jpg")) if CACHE_DIR.exists() else []
+cache_size_mb = sum(f.stat().st_size for f in cache_files) / (1024 * 1024) if cache_files else 0
+
+output_files = list(OUTPUT_DIR.glob("*_1080p.mp4")) if OUTPUT_DIR.exists() else []
+output_size_mb = sum(f.stat().st_size for f in output_files) / (1024 * 1024) if output_files else 0
+
+st.sidebar.caption(f"Cache: {len(cache_files)} previews ({cache_size_mb:.1f} MB)")
+if st.sidebar.button("🗑️ Leeg Thumbnail Cache", use_container_width=True):
+    for f in cache_files:
+        try:
+            f.unlink()
+        except Exception:
+            pass
+    st.sidebar.success("Cache geleegd!")
+    st.rerun()
+
+st.sidebar.caption(f"Exports map: {len(output_files)} video's ({output_size_mb:.1f} MB)")
+if st.sidebar.button("🗑️ Ruim Oude Exports Op", use_container_width=True):
+    for f in output_files:
+        try:
+            f.unlink()
+        except Exception:
+            pass
+    st.sidebar.success("Exports opgeruimd!")
+    st.rerun()
 if LOG_FILE.exists():
     with open(LOG_FILE, "r", encoding="utf-8") as f:
         st.sidebar.download_button(

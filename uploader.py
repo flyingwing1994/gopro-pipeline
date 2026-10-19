@@ -188,9 +188,29 @@ def upload_video_file(creds, file_path: Path, album_id: str, progress_callback=N
         verify_res = requests.post(batch_url, headers=batch_headers, json=body, timeout=30)
         if verify_res.status_code == 200:
             results = verify_res.json().get('newMediaItemResults', [])
-            if results and results[0].get('status', {}).get('message') in [None, 'Success', 'OK']:
-                logging.info(f"Upload geverifieerd in Google Photos: {file_path.name}")
-                return True
+            if results:
+                st_info = results[0].get('status', {})
+                msg = st_info.get('message', '')
+                if not msg or msg.lower() in ['success', 'ok']:
+                    logging.info(f"Upload geverifieerd in Google Photos album: {file_path.name}")
+                    return True
+                else:
+                    logging.warning(f"Album weigering ({msg}). Uploaden naar hoofdbibliotheek...")
+                    # Fallback: voeg toe aan bibliotheek zonder specifiek album
+                    fallback_body = {
+                        'newMediaItems': [{
+                            'description': f'GoPro Converted: {file_path.name}',
+                            'simpleMediaItem': {'uploadToken': upload_token}
+                        }]
+                    }
+                    fb_res = requests.post(batch_url, headers=batch_headers, json=fallback_body, timeout=30)
+                    if fb_res.status_code == 200:
+                        logging.info(f"Upload geverifieerd in Google Photos bibliotheek: {file_path.name}")
+                        return True
+                    else:
+                        logging.error(f"Fallback mislukt: {fb_res.text}")
+        else:
+            logging.error(f"batchCreate HTTP {verify_res.status_code}: {verify_res.text}")
     except Exception as e:
         logging.error(f"Fout tijdens verificatie van {file_path.name}: {e}")
 

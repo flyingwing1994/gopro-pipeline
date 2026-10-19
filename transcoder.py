@@ -78,6 +78,8 @@ def transcode_clip(
         "-hwaccel", "cuda",
         "-hwaccel_output_format", "cuda",
         "-i", str(input_path),
+        "-map_metadata", "0",            # Behoudt alle interne EXIF/QuickTime creation_time metadata
+        "-movflags", "+faststart+use_metadata_tags",
         "-vf", video_filter,
         "-c:v", "h264_nvenc",
         "-preset", "p4",
@@ -88,7 +90,6 @@ def transcode_clip(
         "-colorspace", "bt709",
         "-c:a", "aac",
         "-b:a", "128k",
-        "-movflags", "+faststart",
         "-progress", "pipe:1",
         "-nostats",
         str(output_path)
@@ -98,11 +99,12 @@ def transcode_clip(
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # Voorkomt OS pipe buffer deadlock
             text=True,
             bufsize=1
         )
 
+        error_lines = []
         if process.stdout:
             for line in process.stdout:
                 line = line.strip()
@@ -115,13 +117,23 @@ def transcode_clip(
                             progress_callback(pct)
                     except ValueError:
                         pass
+                elif "error" in line.lower() or "impossible" in line.lower() or "failed" in line.lower():
+                    error_lines.append(line)
 
-        _, stderr_data = process.communicate()
+        process.wait()
         if process.returncode != 0:
-            logging.error(f"FFmpeg fout bij {input_path.name}:\n{stderr_data}")
+            err_msg = "\n".join(error_lines[-10:])
+            logging.error(f"FFmpeg fout bij {input_path.name}:\n{err_msg}")
             return False
 
-        logging.info(f"GPU Transcode voltooid: {input_path.name} -> {output_path.name}")
+        # Zet fysieke Windows bestandstijdstempel exact gelijk aan het origineel
+        try:
+            orig_stat = input_path.stat()
+            os.utime(output_path, (orig_stat.st_atime, orig_stat.st_mtime))
+        except Exception as e:
+            logging.warning(f"Kon bestandstijd niet kopiëren naar {output_path.name}: {e}")
+
+        logging.info(f"GPU Transcode voltooid (met originele datum): {input_path.name} -> {output_path.name}")
         return True
 
     except Exception as e:

@@ -2,7 +2,7 @@ import shutil
 import streamlit as st
 from pathlib import Path
 from transcoder import transcode_clip, extract_thumbnail
-from uploader import get_credentials, get_or_create_album, upload_video_file
+from uploader import get_credentials, get_or_create_album, list_app_albums, upload_video_file
 
 INPUT_DIR = Path(r"C:\Users\Admin\Videos\GoPro\input")
 OUTPUT_DIR = Path(r"C:\Users\Admin\Videos\GoPro\output")
@@ -12,26 +12,48 @@ LUT_FILE = "GoPro_GP-Log_to_Rec709.cube"
 
 st.set_page_config(page_title="GoPro Video Processor", layout="wide")
 st.title("GoPro Video Batch Processor & Uploader")
-st.markdown("Verwerk GoPro clips naar **1080p Rec.709 (25fps)** en verplaats originelen automatisch naar `processed`.")
+st.markdown("Verwerk GoPro clips naar **1080p Rec.709 (25fps)** en upload optioneel naar Google Photos.")
 
 # Sidebar instellingen
 st.sidebar.header("Instellingen")
 enable_upload = st.sidebar.checkbox("Automatisch uploaden naar Google Photos", value=True)
-album_name = st.sidebar.text_input("Doelalbum naam", value="GoPro Exports")
+
+selected_album_id = None
+target_album_name = "GoPro Exports"
+
+if enable_upload:
+    st.sidebar.subheader("Doelalbum Selectie")
+    creds_sidebar = get_credentials()
+    existing_albums = list_app_albums(creds_sidebar)
+    
+    if existing_albums:
+        album_choice = st.sidebar.radio(
+            "Album bestemming:",
+            options=["Bestaand album kiezen", "Nieuw album aanmaken"],
+            index=0
+        )
+        if album_choice == "Bestaand album kiezen":
+            chosen_title = st.sidebar.selectbox("Kies een album:", options=list(existing_albums.keys()))
+            selected_album_id = existing_albums[chosen_title]
+            target_album_name = chosen_title
+        else:
+            target_album_name = st.sidebar.text_input("Naam voor nieuw album:", value="GoPro Exports")
+    else:
+        st.sidebar.info("Nog geen eerder aangemaakte albums gevonden. Maak hieronder een nieuw album aan:")
+        target_album_name = st.sidebar.text_input("Naam voor nieuw album:", value="GoPro Exports")
+
 move_to_processed = st.sidebar.checkbox("Verplaats bronbestand naar 'processed' na succes", value=True)
 
 if not INPUT_DIR.exists():
     st.error(f"Input map niet gevonden: {INPUT_DIR}")
     st.stop()
 
-# Zorg dat de processed map bestaat
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-# Zoek alle unieke MP4 video's in de input map
 video_files = sorted(list({p.resolve(): p for p in INPUT_DIR.iterdir() if p.suffix.lower() == ".mp4"}.values()))
 
 if not video_files:
-    st.info(f"Geen MP4-bestanden meer in `{INPUT_DIR}`. Alles is verwerkt of verplaatst!")
+    st.info(f"Geen MP4-bestanden in `{INPUT_DIR}`. Alles is verwerkt of verplaatst!")
     st.stop()
 
 with st.form("batch_form"):
@@ -64,14 +86,16 @@ with st.form("batch_form"):
 
 if submitted:
     creds = None
-    album_id = None
+    album_id = selected_album_id
 
     if enable_upload:
-        with st.spinner("Verbinden met Google Photos..."):
+        with st.spinner("Album gereedmaken..."):
             creds = get_credentials()
-            album_id = get_or_create_album(creds, album_name)
             if not album_id:
-                st.error("Kon doelalbum in Google Photos niet aanmaken of vinden.")
+                album_id = get_or_create_album(creds, target_album_name)
+            
+            if not album_id:
+                st.error("Kon doelalbum in Google Photos niet aanmaken of selecteren.")
                 st.stop()
 
     progress_bar = st.progress(0)
@@ -91,20 +115,19 @@ if submitted:
             if success:
                 st.write(f"✅ **{clip.name}** gerenderd naar `{out_file.name}`")
                 
-                # 2. Upload indien ingeschakeld
+                # 2. Upload
                 upload_ok = True
                 if enable_upload and album_id:
                     status_text.text(f"[{idx+1}/{total}] Uploaden van {out_file.name} naar Google Photos...")
                     upload_ok = upload_video_file(creds, out_file, album_id)
                     if upload_ok:
-                        st.write(f"☁️ Geüpload naar album **'{album_name}'**.")
+                        st.write(f"☁️ Geüpload naar album **'{target_album_name}'**.")
                     else:
                         st.warning(f"⚠️ Renderen geslaagd, maar upload mislukt voor {out_file.name}.")
 
-                # 3. Bronbestand verplaatsen naar 'processed'
+                # 3. Verplaatsen naar processed
                 if upload_ok and move_to_processed:
                     target_dest = PROCESSED_DIR / clip.name
-                    # Voorkom overschrijven als bestand al bestaat in processed
                     if target_dest.exists():
                         target_dest = PROCESSED_DIR / f"{clip.stem}_dup_{idx}{clip.suffix}"
                     try:

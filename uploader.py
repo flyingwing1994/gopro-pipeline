@@ -1,89 +1,106 @@
+import os
 import json
-from pathlib import Path
 import requests
+from pathlib import Path
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 
-SCOPES = ['https://www.googleapis.com/auth/photoslibrary']
+SCOPES = [
+    'https://www.googleapis.com/auth/photoslibrary.appendonly',
+    'https://www.googleapis.com/auth/photoslibrary.sharing'
+]
 
+# Zorg voor een absoluut pad naar de projectmap
+BASE_DIR = Path(__file__).resolve().parent
+ALBUMS_CACHE_FILE = BASE_DIR / "albums.json"
 
-def get_authenticated_service(credentials_path: Path, token_path: Path):
-    """Authenticates using local OAuth desktop client credentials and saves/refreshes token."""
+def get_credentials():
     creds = None
-    credentials_path = Path(credentials_path)
-    token_path = Path(token_path)
+    token_path = BASE_DIR / 'token.json'
+    cred_path = BASE_DIR / 'credentials.json'
 
     if token_path.exists():
         creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
-
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            if not credentials_path.exists():
-                raise FileNotFoundError(
-                    f"Configuratiebestand ontbreekt: {credentials_path}. "
-                    "Download je OAuth credentials via de Google Cloud Console."
-                )
-            flow = InstalledAppFlow.from_client_secrets_file(str(credentials_path), SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(str(cred_path), SCOPES)
             creds = flow.run_local_server(port=0)
-
-        with open(token_path, 'w', encoding='utf-8') as token:
+        with open(token_path, 'w') as token:
             token.write(creds.to_json())
-
     return creds
 
+def load_cached_albums() -> dict:
+    """Laadt lokaal bekende albums uit albums.json."""
+    if ALBUMS_CACHE_FILE.exists():
+        try:
+            with open(ALBUMS_CACHE_FILE, 'r', encoding='utf-8-sig') as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    return data
+        except Exception as e:
+            print(f"[Waarschuwing] Kon albums.json niet laden: {e}")
+            return {}
+    return {}
 
-def get_or_create_album(creds, album_title: str) -> str:
-    """Finds an existing album by name or creates a new one, returning its ID."""
+def save_cached_album(title: str, album_id: str):
+    """Slaat een album veilig op zonder bestaande entries te overschrijven."""
+    albums = load_cached_albums()
+    albums[title] = album_id
+    with open(ALBUMS_CACHE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(albums, f, indent=2, ensure_ascii=False)
+
+def list_app_albums(creds) -> dict:
+    """Haalt albums op: start met lokale entries en voegt API-albums toe (zonder te wissen)."""
+    albums = load_cached_albums()
+
     headers = {
         'Authorization': f'Bearer {creds.token}',
         'Content-Type': 'application/json'
     }
+    try:
+        res = requests.get('https://photoslibrary.googleapis.com/v1/albums', headers=headers, params={'pageSize': 50})
+        if res.status_code == 200:
+            for alb in res.json().get('albums', []):
+                titel = alb.get('title')
+                alb_id = alb.get('id')
+                if titel and alb_id:
+                    albums[titel] = alb_id
+            # Werk cache bij met behoud van eerdere handmatige entries
+            with open(ALBUMS_CACHE_FILE, 'w', encoding='utf-8') as f:
+                json.dump(albums, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
 
-    # Zoek in bestaande albums
-    url = 'https://photoslibrary.googleapis.com/v1/albums'
-    params = {'pageSize': 50}
+    return albums
 
-    while url:
-        res = requests.get(url, headers=headers, params=params)
-        if res.status_code != 200:
-            break
-        data = res.json()
-        albums = data.get('albums', [])
-        for album in albums:
-            if album.get('title') == album_title:
-                return album.get('id')
+def get_or_create_album(creds, album_title: str) -> str:
+    cached = load_cached_albums()
+    if album_title in cached and cached[album_title] != "test_auto":
+        return cached[album_title]
 
-        next_page = data.get('nextPageToken')
-        if next_page:
-            params['pageToken'] = next_page
-        else:
-            break
-
-    # Maak nieuw album aan als het niet bestaat
-    create_url = 'https://photoslibrary.googleapis.com/v1/albums'
-    body = {'album': {'title': album_title}}
-    res = requests.post(create_url, headers=headers, json=body)
-    res.raise_for_status()
-    return res.json().get('id')
-
+    headers = {
+        'Authorization': f'Bearer {creds.token}',
+        'Content-Type': 'application/json'
+    }
+    payload = {'album': {'title': album_title}}
+    res = requests.post('https://photoslibrary.googleapis.com/v1/albums', headers=headers, json=payload)
+    if res.status_code == 200:
+        album_id = res.json().get('id')
+        save_cached_album(album_title, album_id)
+        return album_id
+    return None
 
 def upload_video_file(creds, file_path: Path, album_id: str) -> bool:
-    """
-    Uploads a video to Google Photos using the robust Resumable Upload protocol.
-    Works reliably with larger video deliveries.
-    """
     file_path = Path(file_path)
     if not file_path.exists():
-        print(f"Bestand niet gevonden voor upload: {file_path}")
         return False
 
     file_size = file_path.stat().st_size
     upload_url = 'https://photoslibrary.googleapis.com/v1/uploads'
 
-    # Stap 1: Initialiseer resumable sessie
     init_headers = {
         'Authorization': f'Bearer {creds.token}',
         'Content-Type': 'application/octet-stream',
@@ -95,15 +112,10 @@ def upload_video_file(creds, file_path: Path, album_id: str) -> bool:
 
     init_res = requests.post(upload_url, headers=init_headers)
     if init_res.status_code != 200:
-        print(f"Fout bij starten uploadsessie ({init_res.status_code}): {init_res.text}")
         return False
 
     upload_endpoint = init_res.headers.get('X-Goog-Upload-URL')
-    if not upload_endpoint:
-        print("Geen upload endpoint ontvangen van Google Photos.")
-        return False
 
-    # Stap 2: Stuur binaire data door
     upload_headers = {
         'Authorization': f'Bearer {creds.token}',
         'Content-Type': 'application/octet-stream',
@@ -112,15 +124,13 @@ def upload_video_file(creds, file_path: Path, album_id: str) -> bool:
     }
 
     with open(file_path, 'rb') as f:
-        upload_res = requests.post(upload_endpoint, headers=upload_headers, data=f)
+        res = requests.post(upload_endpoint, headers=upload_headers, data=f)
 
-    if upload_res.status_code != 200:
-        print(f"Fout tijdens het streamen van data ({upload_res.status_code}): {upload_res.text}")
+    if res.status_code != 200:
         return False
 
-    upload_token = upload_res.text
+    upload_token = res.text
 
-    # Stap 3: Registreer het media-item in het doelalbum
     batch_url = 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate'
     batch_headers = {
         'Authorization': f'Bearer {creds.token}',
@@ -129,19 +139,10 @@ def upload_video_file(creds, file_path: Path, album_id: str) -> bool:
     body = {
         'albumId': album_id,
         'newMediaItems': [{
-            'description': f'GoPro 1080p Rec.709: {file_path.name}',
+            'description': f'Converted 1080p: {file_path.name}',
             'simpleMediaItem': {'uploadToken': upload_token}
         }]
     }
 
     batch_res = requests.post(batch_url, headers=batch_headers, json=body)
-    if batch_res.status_code != 200:
-        print(f"Fout bij toevoegen aan album ({batch_res.status_code}): {batch_res.text}")
-        return False
-
-    results = batch_res.json().get('newMediaItemResults', [])
-    if results and results[0].get('status', {}).get('message') in [None, 'Success', 'OK']:
-        return True
-    
-    print(f"Google Photos upload status: {results}")
-    return False
+    return batch_res.status_code == 200

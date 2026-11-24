@@ -67,6 +67,10 @@ Controleer of pas de gewenste mappen aan in `config.json`:
 
 ---
 
+## Werkwijze
+
+Wijzigingen lopen via issue → branch → pull request, volgens de [werkwijze](https://github.com/flyingwing1994/.github/blob/main/WORKFLOW.md). Elke PR krijgt automatisch checks (geheimen, Semgrep, dependencies, installeren en compileren) en een Claude-review; zonder risicovlag wordt hij daarna automatisch gemerged. Dependabot houdt de Python-packages en de GitHub Actions wekelijks bij.
+
 ## Gebruik
 
 Start de pipeline via het meegeleverde script:
